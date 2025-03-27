@@ -1,0 +1,79 @@
+/* src/app/main-menu/main-menu.component.css */
+
+/* Keep existing styles for :host, .menu-container, .menu-title, .menu-subtitle */
+:host {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    min-height: 80vh; /* Take up most of the viewport height */
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match app style */
+    background-color: #ffffff; /* Or your app's main background */
+  }
+  
+  .menu-container {
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  .menu-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #343a40;
+    margin-bottom: 0.5rem;
+  }
+  
+  .menu-subtitle {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 2.5rem; /* Keep or adjust spacing */
+  }
+  /* src/app/main-menu/main-menu.component.css */
+
+/* Keep other styles like :host, .menu-container, .menu-title, etc. */
+/* ... */
+
+.login-section {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* --- Classy & Minimalistic Ghost Button Style --- */
+  .login-button {
+    padding: 0.8rem 2.5rem;        /* Generous padding for breathing room */
+    font-size: 1.1rem;             /* Clean text size */
+    font-weight: 400;              /* Regular weight, not too bold */
+    color: #495057;                /* Dark grey text for readability */
+    background-color: transparent; /* No background fill */
+    border: 1px solid #adb5bd;     /* Subtle grey border */
+    border-radius: 4px;            /* Slightly rounded corners for softness */
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;         /* Ensure no underline if using <a> */
+    display: inline-block;         /* Proper alignment and padding */
+  
+    /* Smooth transition for hover effects */
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .login-button:hover,
+  .login-button:focus { /* Add :focus for accessibility */
+    /* On hover/focus, fill with accent color */
+    background-color: #007bff;     /* << CHANGE THIS to your budget.io accent color */
+    border-color: #007bff;         /* << CHANGE THIS to match background */
+    color: #ffffff;                /* White text for contrast */
+    outline: none;                 /* Remove default focus outline if customizing */
+    /* Optional: Slight scale or shadow effect */
+    /* transform: scale(1.02); */
+    /* box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); */ /* << Adjust color if using shadow */
+  }
+  
+  .login-button:active {
+    /* Subtle press effect */
+    transform: translateY(1px);
+    /* Optional: Slightly darker background on press */
+    background-color: #0056b3; /* << Darker shade of your accent color */
+    border-color: #0056b3;   /* << Match darker shade */
+  }

@@ -1,0 +1,17 @@
+/* src/app/dashboard/dashboard.component.css */
+:host {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    min-height: 80vh; /* Take up most of the viewport height */
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match app style */
+    background-color: #ffffff; /* Or your app's main background */
+  }
+  
+  .dashboard-container h1 {
+    font-size: 3.5rem; /* Large text */
+    font-weight: 200; /* Very light font */
+    color: #4a4a4a; /* Soft dark grey */
+  }
