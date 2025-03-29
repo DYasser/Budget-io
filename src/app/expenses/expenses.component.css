@@ -1,0 +1,16 @@
+/* src/app/expenses/expenses.component.css */
+:host {
+    display: block; /* Ensure component takes up space */
+    padding: 2rem 3rem; /* Add some padding around the content */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match app style */
+  }
+  
+  .expenses-container h1 {
+    font-weight: 300; /* Lighter heading */
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Add more specific styles as you build the UI */

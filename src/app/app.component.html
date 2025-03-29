@@ -1,7 +1,11 @@
 <header>
 </header>
 
-<div class="app-content"> 
+<button *ngIf="showBackButton" class="back-button" (click)="goBack()" title="Go Back">
+  <span class="material-symbols-outlined">arrow_back</span>
+</button>
+
+<div class="app-content">
   <main>
     <router-outlet></router-outlet>
   </main>

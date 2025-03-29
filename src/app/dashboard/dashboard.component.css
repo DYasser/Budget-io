@@ -1,17 +1,239 @@
-/* src/app/dashboard/dashboard.component.css */
+/* src/app/dashboard/dashboard.component.css - Cleaned Reference */
+
+/* Host centers the main content area */
 :host {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    min-height: 80vh; /* Take up most of the viewport height */
-    text-align: center;
-    padding: 2rem;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match app style */
-    background-color: #ffffff; /* Or your app's main background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 93vh;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #ffffff;
+  position: relative; /* Good practice for positioning context */
+}
+
+/* Welcome message styling */
+.welcome-container h1 {
+  font-size: 3.5rem;
+  font-weight: 200;
+  color: #4a4a4a;
+}
+
+.dashboard-nav-trigger-area {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  height: auto;
+  padding: 100vh 0; /* Keep vertical padding */
+  width: 5vw; /* Keep initial width using vw */
+  background-color: transparent;
+  border: none;
+  overflow: hidden;
+  transition: width 0.3s ease-in-out; /* Keep transition */
+  cursor: pointer; /* Add pointer cursor */
+}
+
+/* --- NEW: Navigation Indicator Icon --- */
+.nav-open-indicator {
+  position: absolute; /* Position relative to the trigger area */
+  top: 50%;
+  /* Position near the inner (right) edge of the initial trigger area */
+  right: 5px; /* Adjust as needed */
+  transform: translateY(-50%); /* Center vertically */
+  font-size: 24px; /* Adjust icon size */
+  color: #b0b0b0; /* Make it quite subtle initially */
+  opacity: 0.6;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out, color 0.3s ease-out;
+  pointer-events: none; /* Don't let icon interfere with hover on parent */
+}
+
+/* --- Navigation Buttons Container (Inside Trigger Area) --- */
+.dashboard-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  /* INCREASE padding-left to make space for the indicator icon */
+  padding-left: 30px;
+
+  /* Initial Hidden State (Adjust transform slightly if needed due to padding) */
+  opacity: 0;
+  transform: translateX(-95%); /* Start slid out */
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+}
+
+/* Change indicator icon appearance on hover */
+.dashboard-nav-trigger-area:hover .nav-open-indicator {
+  opacity: 1;
+  color: #333; 
+}
+
+/* Reveal Nav styles remain the same */
+.dashboard-nav-trigger-area:hover .dashboard-nav {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  transition-delay: 0.1s;
+}
+
+.nav-button {
+  /* --- Size & Layout --- */
+  display: flex;
+  align-items: center;
+  width: 165px;         /* <<< SET EXPLICIT WIDTH for uniformity (adjust value as needed) */
+  box-sizing: border-box; /* Include padding/border in width calculation */
+  gap: 0.7rem;
+
+  /* --- Appearance (New Attractive Style) --- */
+  padding: 0.8rem 1rem;  /* Padding (adjust if needed) */
+  font-size: 0.95rem;
+  font-weight: 400;      /* Regular weight for cleaner look */
+  color: #333;            /* Dark grey text */
+  background-color: #ffffff; /* Clean white background */
+  border: 1px solid #eaeaea; /* Very light grey, subtle border */
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;      /* Remove default shadow */
+
+  /* --- Transitions --- */
+  transition: all 0.25s ease-out; /* Smooth transition for hover effects */
+}
+
+/* Updated Icon Styles within Button */
+.nav-button .material-symbols-outlined {
+  font-size: 1.3rem;
+  color: #777; /* Muted grey icon */
+  opacity: 1;
+  transition: color 0.25s ease-out; /* Transition icon color */
+}
+
+/* Updated Hover & Focus Styles */
+.nav-button:hover,
+.nav-button:focus {
+  background-color: #f5f5f5; /* Subtle light grey background */
+  border-color: #d0d0d0;   /* Slightly more visible border */
+  color: #000;              /* Darker text */
+  /* Subtle lift effect */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07); /* Softer, larger shadow */
+  outline: none;
+}
+
+/* Updated Icon Hover & Focus Styles */
+.nav-button:hover .material-symbols-outlined,
+.nav-button:focus .material-symbols-outlined {
+  color: #007bff; /* << CHANGE THIS to your budget.io accent color */
+}
+
+/* Updated Active State Styles */
+.nav-button:active {
+  transform: translateY(0px); /* Revert lift */
+  box-shadow: none;         /* No shadow when pressed */
+  background-color: #ededed; /* Slightly darker background for press feedback */
+  border-color: #d0d0d0;
+  transition-duration: 0.05s; /* Make press effect quick */
+}
+
+/* --- UPDATE Trigger Area Hover Width --- */
+.dashboard-nav-trigger-area:hover {
+  /* Width needs to accommodate the NEW fixed button width + nav padding */
+  /* Example: 165px (button) + 30px (nav padding-left) = 195px */
+  width: 195px; /* <<< ADJUST this based on your final button width + nav padding-left */
+  transition: width 0.3s ease-in-out;
+  /* Optional: background-color: rgba(230, 230, 230, 0.7); */
+}
+
+/* --- Main Content Area (Chart + Legend) --- */
+.main-content-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center chart/legend horizontally */
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 800px; /* Max width of content area */
+  /* This area is centered vertically and horizontally by :host */
+  /* padding-left: 180px; Consider adding padding on smaller screens if fixed nav overlaps content */
+}
+
+/* Chart wrapper */
+.chart-wrapper {
+  position: relative; /* For center text */
+  width: 100%;
+  max-width: 350px; /* Max width of chart */
+  margin: 0;
+}
+
+/* Canvas specific styles */
+canvas {
+  display: block; /* Remove extra space */
+  max-width: 100%; /* Respect container */
+  height: auto !important; /* Maintain aspect ratio (important sometimes needed) */
+  /* width: 100% !important; Might be overly restrictive, max-width is often enough */
+}
+
+/* Center text styling */
+.chart-center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  pointer-events: none;
+}
+
+/* Custom Legend styles */
+.custom-legend {
+  width: 100%;
+  max-width: 350px; /* Match chart width */
+}
+
+.legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.legend-color-box {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+/* --- Optional: Media query for side-by-side Chart+Legend on desktop --- */
+/* Apply to .main-content-area if desired */
+/*
+@media (min-width: 768px) {
+  .main-content-area {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
   }
-  
-  .dashboard-container h1 {
-    font-size: 3.5rem; /* Large text */
-    font-weight: 200; /* Very light font */
-    color: #4a4a4a; /* Soft dark grey */
+  .custom-legend {
+    width: auto;
+    max-width: 200px;
   }
+}
+*/

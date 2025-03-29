@@ -1,25 +1,24 @@
 // src/app/main-menu/main-menu.component.ts
 import { Component } from '@angular/core';
-import { Router } from '@angular/router'; // Make sure Router is imported
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-// import { RouterLink } from '@angular/router'; // Add if using the <a> routerLink approach
 
 @Component({
   selector: 'app-main-menu',
   standalone: true,
-  imports: [CommonModule], // Add RouterLink here if using it in the template
+  imports: [CommonModule],
   templateUrl: './main-menu.component.html',
   styleUrls: ['./main-menu.component.css']
 })
 export class MainMenuComponent {
-
-  // Inject the Router service
   constructor(private router: Router) {}
 
-  // Method called by the Login button click
   login(): void {
-    // Navigate to the '/dashboard' route
+    // Clear the 'dashboardWelcomed' flag from session storage first
+    sessionStorage.removeItem('dashboardWelcomed');
+    console.log('Welcome flag cleared, navigating to dashboard...');
+
+    // Now navigate
     this.router.navigate(['/dashboard']);
-    console.log('Navigating to dashboard...'); // Optional: for debugging
   }
 }
