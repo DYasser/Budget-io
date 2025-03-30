@@ -17,3 +17,9 @@ app-root {
 .app-content {
   flex: 1 0 auto; 
 }
+
+:root {
+  --app-accent-color: #007bff; 
+  --app-accent-color-dark: #0056b3; 
+  --app-accent-color-light: #a0d0ff; 
+}

@@ -1,13 +1,319 @@
 :host {
-    display: block; 
-    padding: 2rem 3rem; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: block;
+  box-sizing: border-box;
+  padding-top: 70px;
+  padding-left: 70px;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100%;
+}
+
+.expenses-page-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+
+.input-column,
+.list-column {
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.input-column h2,
+.list-column h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+}
+
+.expense-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.expense-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.expense-form input[type="text"],
+.expense-form input[type="number"] {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.expense-form input[type="text"]:focus,
+.expense-form input[type="number"]:focus {
+  background-color: #ffffff;
+  border-color: var(--app-accent-color, #007bff);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  outline: none;
+}
+
+.expense-form input[type=number]::-webkit-inner-spin-button,
+.expense-form input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.expense-form input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.add-button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--app-accent-color, #007bff);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  width: 100%;
+  margin-top: 0;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.add-button:hover {
+  background-color: var(--app-accent-color-dark, #0056b3);
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.15);
+}
+.add-button:active {
+   transform: translateY(1px);
+   box-shadow: 0 1px 2px rgba(0, 123, 255, 0.1);
+}
+
+.cancel-button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #555;
+  background-color: #f0f0f0;
+  border: 1px solid #d0d0d0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  flex-grow: 1;
+  margin-top: 0;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+  border-color: #b0b0b0;
+}
+
+.list-column .empty-list-message {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  background-color: #fdfdfd;
+  border-radius: 6px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.1rem;
+  background-color: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-left: 4px solid var(--app-accent-color-light, #a0d0ff);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, border-left-color 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+}
+.category-item:hover {
+   border-color: #e0e0e0;
+   border-left-color: var(--app-accent-color, #007bff);
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.category-item.editing {
+  border-color: var(--app-accent-color, #007bff);
+  border-left-width: 4px;
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.15);
+  background-color: #f8fbff;
+}
+
+.category-list:has(.category-item.editing) .category-item:not(.editing) {
+  opacity: 0.6;
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: left;
+}
+
+.category-name {
+  font-weight: 500;
+  color: #222;
+}
+
+.category-budget {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #aaa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.action-button:hover {
+  background-color: transparent;
+}
+
+.action-button.edit-button:hover {
+  color: var(--app-accent-color, #007bff);
+}
+.action-button.delete-button:hover {
+  color: #e74c3c;
+}
+.action-button .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.budget-percentage-bars {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.percentage-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.percentage-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 50px;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  transition: background-color 0.2s ease;
+  padding: 0.25rem 0;
+  border-radius: 4px;
+}
+
+.percentage-item:hover {
+  background-color: #f9f9f9;
+}
+
+.percentage-label {
+  font-size: 0.85rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+
+.bar-container {
+  background-color: #e9ecef;
+  border-radius: 3px;
+  height: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background-color: #007bff;
+  transition: width 0.4s ease-out;
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.percentage-value {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #333;
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  :host {
+      padding-top: 60px;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: 1rem;
   }
-  
-  .expenses-container h1 {
-    font-weight: 300; 
-    color: #333;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
+  .expenses-page-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
+  .input-column,
+  .list-column {
+     padding: 1.25rem;
+  }
+  .add-button {
+     width: auto;
+     padding: 0.7rem 1.2rem;
+  }
+  .form-actions {
+     flex-direction: column;
+  }
+  .budget-percentage-bars {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    grid-column: 1 / -1;
+  }
+  .percentage-item {
+     grid-template-columns: 80px 1fr 40px;
+     gap: 0.5rem;
+  }
+   .percentage-label {
+      font-size: 0.8rem;
+   }
+   .percentage-value {
+      font-size: 0.75rem;
+   }
+   .bar-container {
+      height: 10px;
+   }
+}

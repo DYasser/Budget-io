@@ -1,5 +1,85 @@
-<div class="expenses-container">
-    <h1>Expenses</h1>
-    <p>Track and manage your expenses here.</p>
-    <p><em>(Expense tracking interface will go here later)</em></p>
+<div class="expenses-page-container">
+
+  <div class="input-column" #inputColumn>
+    <h2>{{ editingCategory ? 'Edit Budget Category' : 'Add Budget Category' }}</h2>
+    <form (ngSubmit)="saveCategory()" class="expense-form">
+      <div class="form-group">
+        <label for="categoryName">Category Name:</label>
+        <input
+          #categoryNameInput
+          type="text"
+          id="categoryName"
+          name="categoryName"
+          [(ngModel)]="newCategoryName"
+          placeholder="e.g., Groceries, Utilities"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label for="categoryBudget">Monthly Budget:</label>
+        <input
+          type="number"
+          id="categoryBudget"
+          name="categoryBudget"
+          [(ngModel)]="newCategoryBudget"
+          placeholder="e.g., 500"
+          min="0.01"
+          step="0.01"
+          required
+        >
+      </div>
+      <div class="form-actions">
+          <button type="submit" class="add-button">
+              {{ editingCategory ? 'Update Category' : 'Add Category' }}
+          </button>
+          <button
+            type="button"
+            class="cancel-button"
+            *ngIf="editingCategory"
+            (click)="cancelEdit()">
+              Cancel
+          </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-column">
+    <h2>Budgeted Categories</h2>
+    <div *ngIf="expenseCategories.length === 0" class="empty-list-message">
+      You haven't added any budget categories yet. Use the form on the left to add one.
+    </div>
+
+    <div *ngIf="expenseCategories.length > 0" class="category-list">
+      <div
+        *ngFor="let category of expenseCategories"
+        class="category-item"
+        [class.editing]="category.id === editingCategory?.id">
+        <div class="category-info">
+          <span class="category-name">{{ category.name }}</span>
+          <span class="category-budget">${{ category.budget.toFixed(2) }} / month</span>
+        </div>
+        <div class="category-actions">
+          <button class="action-button edit-button" (click)="editCategory(category)" title="Edit" [disabled]="editingCategory?.id === category.id">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button class="action-button delete-button" (click)="deleteCategory(category.id)" title="Delete">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+     </div>
+
+
+  <div class="budget-percentage-bars" *ngIf="categoriesWithPercentages.length > 0">
+    <h3 class="percentage-title">Budget Proportions</h3>
+    <div *ngFor="let item of categoriesWithPercentages" class="percentage-item">
+      <span class="percentage-label">{{ item.name }}</span>
+      <div class="bar-container">
+        <div class="bar-fill" [style.width.%]="item.percentage" [style.backgroundColor]="item.color"></div>
+      </div>
+      <span class="percentage-value">{{ item.percentage.toFixed(1) }}%</span>
+    </div>
+  </div>
+
 </div>

@@ -24,16 +24,16 @@
 <div *ngIf="showChart" class="main-content-area" [@fade]>
   <div class="chart-wrapper">
     <canvas baseChart
-            [data]="doughnutChartData"
+            [data]="{ labels: doughnutChartLabels, datasets: doughnutChartDatasets }"
             [type]="doughnutChartType"
-            [options]="doughnutChartOptions">
+            [options]="doughnutChartOptions"
+            [legend]="false">
     </canvas>
     <div class="chart-center-text">
-      $500
+      {{ totalBudget | currency:'CAD':'symbol':'1.0-0' }}
     </div>
   </div>
-
-  <div class="custom-legend">
+  <div class="custom-legend-dashboard" *ngIf="doughnutChartLabels.length > 0">
     <ul class="legend-list">
       <li *ngFor="let label of doughnutChartLabels; let i = index" class="legend-item">
         <span class="legend-color-box" [style.backgroundColor]="getLegendColor(i)"></span>
