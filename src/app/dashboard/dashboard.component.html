@@ -1,44 +1,44 @@
 <div *ngIf="showWelcome" class="welcome-container" [@fade] (@fade.done)="onWelcomeFadeDone($event)">
     <h1>Welcome</h1>
+</div>
+  
+<div class="dashboard-nav-trigger-area" *ngIf="showChart" [@fade]>
+
+  <span class="nav-open-indicator material-symbols-outlined">
+    chevron_right
+  </span>
+
+  <nav class="dashboard-nav">
+    <button class="nav-button" (click)="goTo('expenses')">
+      <span class="material-symbols-outlined">receipt_long</span> Expenses
+    </button>
+    <button class="nav-button" (click)="goTo('calendar')">
+      <span class="material-symbols-outlined">calendar_month</span> Calendar
+    </button>
+    <button class="nav-button" (click)="goTo('settings')">
+      <span class="material-symbols-outlined">settings</span> Settings
+    </button>
+  </nav>
+</div>
+
+<div *ngIf="showChart" class="main-content-area" [@fade]>
+  <div class="chart-wrapper">
+    <canvas baseChart
+            [data]="doughnutChartData"
+            [type]="doughnutChartType"
+            [options]="doughnutChartOptions">
+    </canvas>
+    <div class="chart-center-text">
+      $500
+    </div>
   </div>
-  
-  <div class="dashboard-nav-trigger-area" *ngIf="showChart" [@fade]>
-  
-    <span class="nav-open-indicator material-symbols-outlined">
-      chevron_right
-    </span>
-  
-    <nav class="dashboard-nav">
-      <button class="nav-button" (click)="goTo('expenses')">
-        <span class="material-symbols-outlined">receipt_long</span> Expenses
-      </button>
-      <button class="nav-button" (click)="goTo('calendar')">
-        <span class="material-symbols-outlined">calendar_month</span> Calendar
-      </button>
-      <button class="nav-button" (click)="goTo('settings')">
-        <span class="material-symbols-outlined">settings</span> Settings
-      </button>
-    </nav>
+
+  <div class="custom-legend">
+    <ul class="legend-list">
+      <li *ngFor="let label of doughnutChartLabels; let i = index" class="legend-item">
+        <span class="legend-color-box" [style.backgroundColor]="getLegendColor(i)"></span>
+        <span class="legend-label">{{ label }}</span>
+      </li>
+    </ul>
   </div>
-  
-  <div *ngIf="showChart" class="main-content-area" [@fade]>
-     <div class="chart-wrapper">
-        <canvas baseChart
-                [data]="doughnutChartData"
-                [type]="doughnutChartType"
-                [options]="doughnutChartOptions">
-        </canvas>
-        <div class="chart-center-text">
-          $500
-        </div>
-      </div>
-  
-      <div class="custom-legend">
-        <ul class="legend-list">
-          <li *ngFor="let label of doughnutChartLabels; let i = index" class="legend-item">
-            <span class="legend-color-box" [style.backgroundColor]="getLegendColor(i)"></span>
-            <span class="legend-label">{{ label }}</span>
-          </li>
-        </ul>
-      </div>
-  </div>
+</div>

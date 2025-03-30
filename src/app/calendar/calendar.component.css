@@ -1,8 +1,7 @@
-/* src/app/calendar/calendar.component.css */
 :host {
     display: block;
-    padding: 2rem 3rem; /* Add some padding */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Match app style */
+    padding: 2rem 3rem; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   }
   
   .calendar-container h1 {

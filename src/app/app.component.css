@@ -1,37 +1,35 @@
-/* Styles for the back button (in app.component.css or styles.css) */
 .back-button {
-    position: fixed; /* Position relative to the viewport */
-    top: 20px;       /* Adjust distance from top */
-    left: 20px;      /* Adjust distance from left */
-    z-index: 101;    /* Ensure it's above other fixed elements like side nav trigger */
-  
-    background-color: transparent; /* No background */
-    border: none;                 /* No border */
-    padding: 8px;                /* Increase clickable area */
-    margin: 0;                   /* Reset margin */
+    position: fixed; 
+    top: 20px;       
+    left: 20px;      
+    z-index: 101;    
+
+    background-color: transparent; 
+    border: none;                 
+    padding: 8px;                
+    margin: 0;                   
     cursor: pointer;
-    border-radius: 50%;          /* Circular shape */
-    color: #444;                  /* Icon color (adjust as needed) */
-  
-    display: inline-flex;        /* Helps align icon inside */
+    border-radius: 50%;          
+    color: #444;                  
+
+    display: inline-flex;       
     justify-content: center;
     align-items: center;
-    line-height: 1;              /* Prevent extra spacing */
-  
-    /* Subtle hover effect */
+    line-height: 1;           
+
     transition: background-color 0.2s ease-out, color 0.2s ease-out;
-  }
-  
-  .back-button .material-symbols-outlined {
-    font-size: 24px; /* Material Symbols icon size */
-    display: block;   /* Prevent layout shifts */
-  }
-  
-  .back-button:hover {
-    background-color: rgba(0, 0, 0, 0.08); /* Very subtle background */
-    color: #000; /* Darken icon slightly */
-  }
-  
-  .back-button:active {
-    background-color: rgba(0, 0, 0, 0.12); /* Slightly darker press effect */
-  }
+}
+
+.back-button .material-symbols-outlined {
+    font-size: 24px; 
+    display: block;   
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.08); 
+    color: #000;
+}
+
+.back-button:active {
+    background-color: rgba(0, 0, 0, 0.12); 
+}

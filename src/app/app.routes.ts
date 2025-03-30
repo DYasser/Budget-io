@@ -1,38 +1,36 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { MainMenuComponent } from './main-menu/main-menu.component';
-import { DashboardComponent } from './dashboard/dashboard.component'; // Import DashboardComponent
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExpensesComponent } from './expenses/expenses.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { SettingsComponent } from './settings/settings.component';
 
 export const routes: Routes = [
   {
-    path: '', // Root path still shows the main menu
+    path: '',
     component: MainMenuComponent,
-    title: 'Login - budget.io' // Updated title maybe?
+    title: 'Login - budget.io'
   },
   {
-    path: 'dashboard', // Define the path for the dashboard
-    component: DashboardComponent, // Point to the DashboardComponent
-    title: 'Dashboard - budget.io' // Set a title for the dashboard page
+    path: 'dashboard',
+    component: DashboardComponent,
+    title: 'Dashboard - budget.io'
   },
   {
-    path: 'expenses', // <-- Define the path for expenses
-    component: ExpensesComponent, // <-- Point to the ExpensesComponent
-    title: 'Expenses - budget.io' // <-- Set browser tab title
+    path: 'expenses',
+    component: ExpensesComponent,
+    title: 'Expenses - budget.io' 
   },
   {
-    path: 'calendar', // <-- Define the path for calendar
-    component: CalendarComponent, // <-- Point to the CalendarComponent
-    title: 'Calendar - budget.io' // <-- Set browser tab title
+    path: 'calendar', 
+    component: CalendarComponent, 
+    title: 'Calendar - budget.io' 
   },
   {
-    path: 'settings', // <-- Define the path for settings
-    component: SettingsComponent, // <-- Point to the SettingsComponent
-    title: 'Settings - budget.io' // <-- Set browser tab title
+    path: 'settings', 
+    component: SettingsComponent, 
+    title: 'Settings - budget.io' 
   },
-  // You might have other routes here later, like the footer links
   // { path: 'privacy', component: PrivacyPolicyComponent },
   // { path: 'terms', component: TermsComponent },
   // { path: 'contact', component: ContactComponent },

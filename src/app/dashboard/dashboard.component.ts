@@ -1,10 +1,10 @@
-// src/app/dashboard/dashboard.component.ts
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { trigger, state, style, transition, animate, AnimationEvent } from '@angular/animations'; // Import animation functions
+import { trigger, state, style, transition, animate, AnimationEvent } from '@angular/animations';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs'; // Keep if used elsewhere, not needed for this version
 
 @Component({
   selector: 'app-dashboard',
@@ -14,104 +14,60 @@ import { Router } from '@angular/router';
   styleUrls: ['./dashboard.component.css'],
   animations: [
     trigger('fade', [
-      // Fade in
-      transition('void => *', [ // Or ':enter'
-        style({ opacity: 0 }),
-        animate('500ms ease-in', style({ opacity: 1 }))
-      ]),
-      // Fade out
-      transition('* => void', [ // Or ':leave'
-        animate('500ms ease-out', style({ opacity: 0 }))
-      ])
+      transition('void => *', [ style({ opacity: 0 }), animate('500ms ease-in', style({ opacity: 1 })) ]),
+      transition('* => void', [ animate('500ms ease-out', style({ opacity: 0 })) ])
     ])
   ]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-
-  // State management
-  showWelcome = true;
-  showChart = false;
-  private timerHandle: any = null; // To hold the setTimeout reference
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
-  // Chart Configuration
+  showWelcome = true;
+  showChart = false;
+  private timerHandle: any = null;
+  private resizeTimeout: any;
+
   public doughnutChartLabels: string[] = [ 'Housing', 'Food', 'Transport', 'Savings', 'Other' ];
   public doughnutChartData: ChartData<'doughnut'> = {
     labels: this.doughnutChartLabels,
     datasets: [
       {
-        data: [ 200, 100, 50, 75, 75 ], // Example data ($500 total breakdown)
+        data: [ 200, 100, 50, 75, 75 ],
         label: 'Budget Allocation',
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#E0E0E0'],
         hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#E0E0E0'],
         hoverBorderColor: '#fff',
-        borderWidth: 1, // Add border width
-        hoverOffset: 4 // Add hover offset for interaction
+        borderWidth: 1,
+        hoverOffset: 4
       }
     ]
   };
   public doughnutChartType: 'doughnut' = 'doughnut';
-  private resizeTimeout: any; // For debouncing resize
-  // In dashboard.component.ts
   public doughnutChartOptions: ChartConfiguration<'doughnut'>['options'] = {
     responsive: true,
-    maintainAspectRatio: true, // Usually true, ensures proportions are kept
-    cutout: '85%', // Or your preferred value
+    maintainAspectRatio: true,
+    cutout: '85%',
     plugins: {
-      legend: {
-        display: false
-      },
-      tooltip: {
-        enabled: false
-      },
-      // Add configuration for datalabels plugin here:
-      datalabels: {
-        formatter: (value, ctx) => {
-          // Display the category label
-          return ctx.chart.data.labels?.[ctx.dataIndex] ?? '';
-        },
-        color: '#fff', // Example: White text
-        // anchor: 'center', // Try 'center' to place inside
-        // align: 'center',
-        font: {
-          weight: 'bold'
-        },
-        display: false 
-        // Add more options for positioning, background, borders etc.
-        // See chartjs-plugin-datalabels documentation for possibilities
-      }
+      legend: { display: false },
+      tooltip: { enabled: false },
+      datalabels: { display: false }
     }
   };
 
-  constructor(private router: Router, private cdr: ChangeDetectorRef) {}
-
-  @HostListener('window:resize', ['$event'])
-    onWindowResize(event?: Event): void {
-      // Debounce resize event
-      clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(() => {
-        // Check if the directive instance AND its underlying chart instance exist
-        if (this.chart?.chart) {
-          console.log('Window resize/zoom detected - Resizing Chart.js instance');
-          // Call resize() on the actual Chart.js instance
-          this.chart.chart.resize(); // << CORRECTED LINE
-          // this.chart.chart.update(); // Calling update() after resize() is usually redundant
-          // this.cdr.detectChanges();
-        } else {
-          console.log('Chart instance not available for resize yet.'); // Added for debugging
-        }
-      }, 150); // Debounce time
-    }
+  constructor(
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone
+  ) {}
 
   ngOnInit(): void {
     const alreadyWelcomed = sessionStorage.getItem('dashboardWelcomed');
     if (alreadyWelcomed === 'true') {
       this.showWelcome = false;
-      // Defer showing chart slightly to ensure template is ready
       setTimeout(() => {
-          this.showChart = true;
-          this.cdr.detectChanges(); // Detect changes after timeout
-          this.onWindowResize(); // Trigger initial resize check
+         this.showChart = true;
+         this.cdr.detectChanges();
+         this.attemptChartResize();
       }, 0);
     } else {
       this.showWelcome = true;
@@ -121,45 +77,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }, 3000);
     }
   }
-  
+
   ngOnDestroy(): void {
-    // Clear the timer if the component is destroyed before 3 seconds
-    if (this.timerHandle) {
-      clearTimeout(this.timerHandle);
+    if (this.timerHandle) { clearTimeout(this.timerHandle); }
+    clearTimeout(this.resizeTimeout);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(event?: Event): void {
+    clearTimeout(this.resizeTimeout);
+    this.resizeTimeout = setTimeout(() => {
+      this.attemptChartResize();
+    }, 100);
+  }
+
+  attemptChartResize(): void {
+    if (!this.chart) {
+        // console.error('[ATTEMPT RESIZE] FAILED: ViewChild chart directive is not available.');
+        return;
+    }
+    if (!this.chart.chart) {
+        // console.error('[ATTEMPT RESIZE] FAILED: Chart.js instance (this.chart.chart) is not available.');
+        return;
+    }
+
+    try {
+        this.chart.chart.resize();
+        this.chart.chart.update('none');
+        this.cdr.detectChanges();
+
+    } catch (error) {
+        console.error('[ATTEMPT RESIZE] Error during chart resize/update:', error);
     }
   }
 
   onWelcomeFadeDone(event: AnimationEvent): void {
     if (event.toState === 'void' && !this.showChart) {
-      // Defer showing chart slightly
       setTimeout(() => {
          this.showChart = true;
-         this.cdr.detectChanges(); // Detect changes after timeout
-         this.onWindowResize(); // Trigger initial resize check
+         this.cdr.detectChanges();
+         this.attemptChartResize();
          sessionStorage.setItem('dashboardWelcomed', 'true');
       }, 0);
     }
   }
-  
-  // Inside the DashboardComponent class
-  getLegendColor(index: number): string {
-    // Safely access the dataset and background color array
-    const dataset = this.doughnutChartData.datasets[0];
-    const bgColors = dataset?.backgroundColor; // Use optional chaining
 
-    // Check if backgroundColor is actually an array and the index is valid
+  getLegendColor(index: number): string {
+    const dataset = this.doughnutChartData.datasets[0];
+    const bgColors = dataset?.backgroundColor;
     if (Array.isArray(bgColors) && index >= 0 && index < bgColors.length) {
-      // If valid, return the color (provide a fallback if the color itself could be undefined)
       return bgColors[index] ?? 'grey';
     }
-
-    // Return a default/fallback color if something is wrong
     return 'grey';
   }
 
   goTo(page: string): void {
-    const targetRoute = `/${page}`; // Construct the route path (e.g., '/expenses')
+    const targetRoute = `/${page}`;
     console.log(`Navigating to ${targetRoute}`);
-    this.router.navigate([targetRoute]); // Use the router to navigate
+    this.router.navigate([targetRoute]);
   }
 }

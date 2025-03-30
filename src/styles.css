@@ -1,47 +1,19 @@
-/* In styles.css or app.component.css */
-/* Ensure app-root or body takes full height */
-/* src/styles.css (or styles.scss, etc.) */
-
 body {
-    /* Standard property */
-    user-select: none;
+  user-select: none;
+  -webkit-user-select: none; 
+  -moz-user-select: none;    
+  -ms-user-select: none;   
+  margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;  
+}
   
-    /* Vendor prefixes for broader compatibility (especially older browsers) */
-    -webkit-user-select: none; /* Safari, Chrome, Opera, Edge */
-    -moz-user-select: none;    /* Firefox */
-    -ms-user-select: none;     /* Internet Explorer/Old Edge */
-  }
-  
-  /* You might also need to apply this specifically to input placeholders */
-  /* Although disabling selection globally on the body should cover most cases */
-  /*
-  ::placeholder {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
-  input, textarea {
-    // Be careful here - users NEED to select text in input fields!
-    // Maybe only apply to specific non-editable display elements if needed.
-  }
-  */
-  
-/* Ensure other global styles remain */
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; } /* Example existing styles */
 
-  /* Make app-root a flex container */
-  app-root {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-  }
-  
-  .app-content {
-    flex: 1 0 auto; /* Allow main content to grow and shrink, but don't shrink below its content size */
-    /* Add padding if needed */
-    /* padding: 1rem; */
-  }
-  
-  /* app-footer will naturally be at the bottom because of the flex layout */
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.app-content {
+  flex: 1 0 auto; 
+}
