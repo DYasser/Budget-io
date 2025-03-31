@@ -12,8 +12,13 @@
   position: relative;
 }
 
-.welcome-container h1 {
+.welcome-container h1{
   font-size: 3.5rem;
+  font-weight: 200;
+  color: #4a4a4a;
+}
+
+h1{
   font-weight: 200;
   color: #4a4a4a;
 }

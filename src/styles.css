@@ -3,10 +3,9 @@ body {
   -webkit-user-select: none; 
   -moz-user-select: none;    
   -ms-user-select: none;   
-  margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;  
+  margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;
+  /* background-color: var(--app-bg-dark-primary);  */
 }
-  
-html, body { height: 100%; }
 
 app-root {
   display: flex;
@@ -19,7 +18,14 @@ app-root {
 }
 
 :root {
-  --app-accent-color: #007bff; 
-  --app-accent-color-dark: #0056b3; 
-  --app-accent-color-light: #a0d0ff; 
+  --app-accent-color-futuristic: #22d3ee;
+  --app-accent-color-futuristic-dark: #06b6d4;
+  --app-text-color-light: #cbd5e1;
+  --app-text-color-medium: #94a3b8;
+  --app-text-color-dark: #1e293b;
+  --app-bg-dark-primary: #0f172a;
+  --app-bg-dark-secondary: #1e293b;
+  --app-border-dark: #334155;
 }
+
+html, body { height: 100%; }

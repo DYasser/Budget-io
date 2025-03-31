@@ -7,30 +7,36 @@
   padding-bottom: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100%;
+  /* background-color: #f8f9fa; Or your default light page background */
 }
 
 .expenses-page-container {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 2rem;
+  max-width: 1400px; /* Or previous value */
+  margin: 0 auto;
 }
 
 .input-column,
 .list-column {
   padding: 1.5rem;
   background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
 }
 
 .input-column h2,
-.list-column h2 {
+.list-column h2{
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-weight: 400;
+  font-size: 1.2rem;
   color: #333;
-  border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f5f5f5;
+  padding-bottom: 0.8rem;
+  text-align: center;
 }
 
 .expense-form .form-group {
@@ -217,8 +223,11 @@
 .budget-percentage-bars {
   grid-column: 1 / -1;
   margin-top: 1rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f0f0f0;
+  padding: 1.5rem;
+  background-color: #ffffff; /* White background */
+  border-radius: 8px;
+  border: 1px solid #f0f0f0; /* Light border */
+  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); */ /* Optional subtle shadow */
 }
 
 .percentage-title {
@@ -226,7 +235,9 @@
   font-weight: 500;
   color: #444;
   margin-bottom: 1rem;
-  text-align: left;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .percentage-item {
@@ -264,7 +275,7 @@
 .bar-fill {
   height: 100%;
   border-radius: 3px;
-  background-color: #007bff;
+  background-color: var(--app-accent-color, #007bff); /* Use accent for bars */
   transition: width 0.4s ease-out;
   box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.1);
 }
@@ -274,6 +285,91 @@
   font-weight: 500;
   color: #333;
   text-align: right;
+}
+
+.expense-form select {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
+  appearance: none; /* Optional: for custom arrow later */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); /* Basic arrow */
+  background-repeat: no-repeat;
+  background-position: right .7em top 50%;
+  background-size: .65em auto;
+}
+
+.expense-form select:focus {
+  background-color: #ffffff;
+  border-color: var(--app-accent-color, #007bff);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  outline: none;
+}
+
+.expense-form input[type="text"],
+.expense-form input[type="number"],
+.expense-form input[type="date"] { /* Added type="date" */
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: #fdfdfd;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit; /* Ensure font matches */
+  line-height: inherit; /* Ensure line height matches */
+}
+
+/* Add input[type="date"] to the focus selector */
+.expense-form input[type="text"]:focus,
+.expense-form input[type="number"]:focus,
+.expense-form input[type="date"]:focus { /* Added type="date" */
+  background-color: #ffffff;
+  border-color: var(--app-accent-color, #007bff);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  outline: none;
+}
+
+/* Add specific styles for date input */
+.expense-form input[type="date"] {
+  position: relative; /* Needed for some icon hiding techniques */
+  padding-right: 2.5rem; /* Add padding to prevent text overlap with custom icon */
+}
+
+/* Attempt to hide the default calendar icon (Webkit browsers) */
+.expense-form input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  opacity: 0;
+  -webkit-appearance: none;
+}
+
+/* Style the wrapper for positioning */
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Style and position the custom icon */
+.date-picker-icon {
+  position: absolute;
+  top: 50%;
+  right: 0.8rem; /* Position icon on the right */
+  transform: translateY(-50%);
+  font-size: 1.3rem; /* Icon size */
+  color: #999; /* Icon color */
+  pointer-events: none; /* Icon doesn't block interaction with input */
+}
+
+/* Optional: Slightly change icon color when input is focused */
+.expense-form input[type="date"]:focus + .date-picker-icon {
+  color: var(--app-accent-color, #007bff);
 }
 
 @media (max-width: 900px) {
@@ -291,17 +387,16 @@
   .list-column {
      padding: 1.25rem;
   }
+   .budget-percentage-bars {
+     padding: 1.25rem;
+     grid-column: 1 / -1;
+   }
   .add-button {
      width: auto;
      padding: 0.7rem 1.2rem;
   }
   .form-actions {
      flex-direction: column;
-  }
-  .budget-percentage-bars {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    grid-column: 1 / -1;
   }
   .percentage-item {
      grid-template-columns: 80px 1fr 40px;
