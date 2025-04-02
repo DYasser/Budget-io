@@ -8,7 +8,8 @@ export interface ExpenseCategory {
   name: string;
   budget: number;
   frequency: BudgetFrequency;
-  dueDate: string; // CHANGED: No longer optional (string | null)
+  dueDate: string;
+  isDueEndOfMonth?: boolean;
   color?: string;
 }
 
@@ -27,9 +28,7 @@ export class BudgetService {
   private categoriesSubject = new BehaviorSubject<ExpenseCategory[]>([]);
   categories$: Observable<ExpenseCategory[]> = this.categoriesSubject.asObservable();
 
-  constructor() {
-    this.loadInitialData();
-   }
+  constructor() { this.loadInitialData(); }
 
   private getTodayDateStringForDefault(): string {
       const today = new Date();
@@ -41,12 +40,12 @@ export class BudgetService {
   private loadInitialData(): void {
     const todayStr = this.getTodayDateStringForDefault();
     this.expenseCategories = [
-      { id: this.nextId++, name: 'Groceries', budget: 400, frequency: 'Weekly', dueDate: todayStr },
-      { id: this.nextId++, name: 'Rent/Mortgage', budget: 1500, frequency: 'Monthly', dueDate: `${todayStr.substring(0,8)}01` }, // Default to 1st
-      { id: this.nextId++, name: 'Gas/Transport', budget: 150, frequency: 'Monthly', dueDate: todayStr },
-      { id: this.nextId++, name: 'Netflix', budget: 15, frequency: 'Monthly', dueDate: `${todayStr.substring(0,8)}15` }, // Default to 15th
-      { id: this.nextId++, name: 'Car Insurance', budget: 1200, frequency: 'Annually', dueDate: '2025-10-15' },
-      { id: this.nextId++, name: 'Vacation Fund', budget: 500, frequency: 'One-Time', dueDate: '2025-12-20' }
+       { id: this.nextId++, name: 'Groceries', budget: 400, frequency: 'Weekly', dueDate: todayStr, isDueEndOfMonth: false },
+       { id: this.nextId++, name: 'Rent/Mortgage', budget: 1500, frequency: 'Monthly', dueDate: `${todayStr.substring(0,8)}01`, isDueEndOfMonth: false },
+       { id: this.nextId++, name: 'Gas/Transport', budget: 150, frequency: 'Monthly', dueDate: todayStr, isDueEndOfMonth: false },
+       { id: this.nextId++, name: 'Netflix', budget: 15, frequency: 'Monthly', dueDate: `${todayStr.substring(0,8)}28`, isDueEndOfMonth: true },
+       { id: this.nextId++, name: 'Car Insurance', budget: 1200, frequency: 'Annually', dueDate: '2025-10-15', isDueEndOfMonth: false },
+       { id: this.nextId++, name: 'Vacation Fund', budget: 500, frequency: 'One-Time', dueDate: '2025-12-20', isDueEndOfMonth: false }
     ];
     this.assignColors();
     this.emitUpdate();
@@ -67,9 +66,8 @@ export class BudgetService {
       return [...this.expenseCategories];
   }
 
-  addCategory(name: string, budget: number, frequency: BudgetFrequency, dueDate: string): void { // dueDate is now string
-    if (!name.trim() || budget === null || budget <= 0 || !dueDate) { // Also check dueDate
-      console.error("Invalid data for adding category");
+  addCategory(name: string, budget: number, frequency: BudgetFrequency, dueDate: string, isDueEndOfMonth: boolean): void {
+    if (!name.trim() || budget === null || budget <= 0 || !dueDate) {
       return;
     }
     const newCategory: ExpenseCategory = {
@@ -77,16 +75,16 @@ export class BudgetService {
       name: name.trim(),
       budget: budget,
       frequency: frequency,
-      dueDate: dueDate, // Assign required dueDate
+      dueDate: dueDate,
+      isDueEndOfMonth: isDueEndOfMonth,
       color: this.colorPalette[this.expenseCategories.length % this.colorPalette.length]
     };
     this.expenseCategories.push(newCategory);
     this.emitUpdate();
   }
 
-  updateCategory(updatedCategory: ExpenseCategory): void { // updatedCategory must have dueDate
+  updateCategory(updatedCategory: ExpenseCategory): void {
      if (!updatedCategory.dueDate) {
-         console.error("Cannot update category without a due date");
          return;
      }
      const index = this.expenseCategories.findIndex(c => c.id === updatedCategory.id);

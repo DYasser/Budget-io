@@ -26,6 +26,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   newCategoryBudget: number | null = null;
   newCategoryFrequency: BudgetFrequency = 'Monthly';
   newCategoryDueDate: string = '';
+  newCategoryIsDueEndOfMonth: boolean = false;
 
   editingCategory: ExpenseCategory | null = null;
 
@@ -61,6 +62,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     });
     this.newTransactionDate = this.getTodayDateString();
     this.newCategoryDueDate = this.getTodayDateString();
+    this.newCategoryIsDueEndOfMonth = false;
   }
 
   ngOnDestroy(): void {
@@ -76,21 +78,32 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       return `${today.getFullYear()}-${month}-${day}`;
   }
 
-
   calculateCurrentMonthProportions(): void {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
 
       const relevantCategoriesThisMonth = this.expenseCategories.filter(cat => {
-          if (cat.frequency === 'Monthly' || cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') {
+          if (cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') {
               return true;
           }
           if (cat.dueDate) {
               try {
                   const dueDate = new Date(cat.dueDate + 'T00:00:00');
-                  return dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear;
+                  const dueMonth = dueDate.getMonth();
+                  const dueYear = dueDate.getFullYear();
+
+                  if (cat.frequency === 'Monthly') {
+                     if (cat.isDueEndOfMonth) {
+                        return (dueYear < currentYear) || (dueYear === currentYear && dueMonth <= currentMonth);
+                     } else {
+                         return true;
+                     }
+                  } else if (cat.frequency === 'Quarterly' || cat.frequency === 'Annually' || cat.frequency === 'One-Time') {
+                     return dueMonth === currentMonth && dueYear === currentYear;
+                  }
               } catch (e) {
+                  console.error('Error parsing dueDate for filtering', cat.dueDate, e);
                   return false;
               }
           }
@@ -120,7 +133,9 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       alert('Please enter a valid category name, a positive budget amount, and select a date.');
       return;
     }
-    const dueDateValue = this.newCategoryDueDate;
+
+    const dateToSend = this.newCategoryDueDate;
+    const endOfMonthFlag = this.newCategoryFrequency === 'Monthly' ? this.newCategoryIsDueEndOfMonth : false;
 
     if (this.editingCategory) {
       const updatedData: ExpenseCategory = {
@@ -128,7 +143,8 @@ export class ExpensesComponent implements OnInit, OnDestroy {
         name: this.newCategoryName.trim(),
         budget: this.newCategoryBudget,
         frequency: this.newCategoryFrequency,
-        dueDate: dueDateValue
+        dueDate: dateToSend,
+        isDueEndOfMonth: endOfMonthFlag
       };
       this.budgetService.updateCategory(updatedData);
     } else {
@@ -136,11 +152,12 @@ export class ExpensesComponent implements OnInit, OnDestroy {
           this.newCategoryName.trim(),
           this.newCategoryBudget,
           this.newCategoryFrequency,
-          dueDateValue
+          dateToSend,
+          endOfMonthFlag
         );
     }
     this.resetForm();
-   }
+  }
 
   editCategory(category: ExpenseCategory): void {
     this.editingCategory = category;
@@ -148,6 +165,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.newCategoryBudget = category.budget;
     this.newCategoryFrequency = category.frequency;
     this.newCategoryDueDate = category.dueDate;
+    this.newCategoryIsDueEndOfMonth = category.isDueEndOfMonth || false;
 
     setTimeout(() => {
       if (this.categoryNameInputRef) {
@@ -167,6 +185,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.newCategoryBudget = null;
     this.newCategoryFrequency = 'Monthly';
     this.newCategoryDueDate = this.getTodayDateString();
+    this.newCategoryIsDueEndOfMonth = false;
   }
 
   deleteCategory(categoryId: number): void {
@@ -176,14 +195,13 @@ export class ExpensesComponent implements OnInit, OnDestroy {
        if (this.editingCategory?.id === categoryId) {
            this.resetForm();
        }
-       } else {
+    } else {
         console.log('Deletion cancelled or category not found.');
     }
   }
 
-
   addTransaction(): void {
-    if (this.newTransactionAmount === null || this.newTransactionAmount <= 0 ||
+     if (this.newTransactionAmount === null || this.newTransactionAmount <= 0 ||
         !this.newTransactionDate || this.newTransactionCategory === null) {
           alert('Please fill in Amount, Date, and Category for the transaction.');
           return;

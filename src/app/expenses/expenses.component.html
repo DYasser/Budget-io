@@ -1,10 +1,10 @@
 <div class="expenses-page-container">
 
   <div class="input-column" #inputColumn>
-    <h2>{{ editingCategory ? 'Edit Expenses' : 'Add Expenses' }}</h2>
+    <h2>{{ editingCategory ? 'Edit Budget Category' : 'Add Budget Category' }}</h2>
     <form (ngSubmit)="saveCategory()" class="expense-form">
       <div class="form-group">
-        <label for="categoryName">Expense Name:</label>
+        <label for="categoryName">Category Name:</label>
         <input
           #categoryNameInput
           type="text"
@@ -16,7 +16,7 @@
         >
       </div>
       <div class="form-group">
-        <label for="categoryBudget">Expense Amount:</label>
+        <label for="categoryBudget">Budget Amount:</label>
         <input
           type="number"
           id="categoryBudget"
@@ -29,7 +29,7 @@
         >
       </div>
       <div class="form-group">
-        <label for="categoryFrequency">Expense Frequency:</label>
+        <label for="categoryFrequency">Budget Frequency:</label>
         <select id="categoryFrequency" name="categoryFrequency" [(ngModel)]="newCategoryFrequency" required>
           <option *ngFor="let freq of budgetFrequencies" [value]="freq">
             {{ freq }}
@@ -38,15 +38,25 @@
       </div>
       <div class="form-group">
         <label for="categoryDueDate">Date / Next Due:</label>
-        <div class="date-input-wrapper">
-          <input
-            type="date"
-            id="categoryDueDate"
-            name="categoryDueDate"
-            [(ngModel)]="newCategoryDueDate"
-            required
-          >
-          <span class="material-symbols-outlined date-picker-icon">calendar_month</span>
+        <div class="date-input-container">
+            <input
+              type="date"
+              id="categoryDueDate"
+              name="categoryDueDate"
+              [(ngModel)]="newCategoryDueDate"
+
+              required
+            >
+            <div class="end-of-month-option" *ngIf="newCategoryFrequency === 'Monthly'">
+                <input
+                    type="checkbox"
+                    id="endOfMonthCheck"
+                    name="endOfMonthCheck"
+                    [(ngModel)]="newCategoryIsDueEndOfMonth"
+                >
+                <label for="endOfMonthCheck">Use End of Month</label>
+                <span class="eom-hint" *ngIf="newCategoryIsDueEndOfMonth">(Uses selected month/year as start)</span>
+            </div>
         </div>
       </div>
       <div class="form-actions">
@@ -65,22 +75,25 @@
   </div>
 
   <div class="list-column">
-     <h2>Expenses</h2>
+     <h2>Budgeted Categories</h2>
      <div *ngIf="expenseCategories.length === 0" class="empty-list-message">
        You haven't added any budget categories yet. Use the form on the left to add one.
      </div>
 
      <div *ngIf="expenseCategories.length > 0" class="category-list">
        <div *ngFor="let category of expenseCategories" class="category-item" [class.editing]="category.id === editingCategory?.id">
-         <div class="category-info">
-           <span class="category-name">{{ category.name }}</span>
-           <div>
-             <span class="category-budget">${{ category.budget.toFixed(2) }} / {{ category.frequency }}</span>
-             <span class="category-due-date" *ngIf="category.dueDate">
-               (Due: {{ category.dueDate | date:'MMM d, y' }})
-             </span>
-           </div>
-         </div>
+          <div class="category-info">
+            <span class="category-name">{{ category.name }}</span>
+            <div>
+              <span class="category-budget">${{ category.budget.toFixed(2) }} / {{ category.frequency }}</span>
+              <span class="category-due-date" *ngIf="category.frequency === 'Monthly' && category.isDueEndOfMonth">
+                (Due: End of Month, starts {{ category.dueDate | date:'MMM y' }})
+              </span>
+              <span class="category-due-date" *ngIf="!(category.frequency === 'Monthly' && category.isDueEndOfMonth) && category.dueDate">
+                (Due: {{ category.dueDate | date:'MMM d, y' }})
+              </span>
+            </div>
+          </div>
          <div class="category-actions">
             <button class="action-button edit-button" (click)="editCategory(category)" title="Edit" [disabled]="editingCategory?.id === category.id">
              <span class="material-symbols-outlined">edit</span>
@@ -104,5 +117,6 @@
       <span class="percentage-value">{{ item.percentage.toFixed(1) }}%</span>
     </div>
   </div>
+
 
 </div>

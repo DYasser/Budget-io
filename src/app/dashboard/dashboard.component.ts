@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     cutout: '85%',
     plugins: {
       legend: { display: false },
-      tooltip: { enabled: true },
+      tooltip: { enabled: false },
       datalabels: { display: false }
     }
   };
@@ -129,20 +129,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateDashboardChart(categories: ExpenseCategory[]): void {
-     const now = new Date();
+    console.log('Dashboard received category update:', categories);
+
+    const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
     const relevantCategoriesThisMonth = categories.filter(cat => {
-        if (cat.frequency === 'Monthly' || cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') { return true; }
+        if (cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') {
+            return true;
+        }
         if (cat.dueDate) {
             try {
                 const dueDate = new Date(cat.dueDate + 'T00:00:00');
-                return dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear;
-            } catch (e) { return false; }
+                const dueMonth = dueDate.getMonth();
+                const dueYear = dueDate.getFullYear();
+
+                if (cat.frequency === 'Monthly') {
+                   if (cat.isDueEndOfMonth) {
+                      return (dueYear < currentYear) || (dueYear === currentYear && dueMonth <= currentMonth);
+                   } else {
+                       return true;
+                   }
+                } else if (cat.frequency === 'Quarterly' || cat.frequency === 'Annually' || cat.frequency === 'One-Time') {
+                   return dueMonth === currentMonth && dueYear === currentYear;
+                }
+            } catch (e) {
+                console.error('Error parsing dueDate for dashboard filtering', cat.dueDate, e);
+                return false;
+            }
         }
         return false;
     });
+
+    console.log('Dashboard showing categories relevant this month:', relevantCategoriesThisMonth);
 
     this.totalBudget = relevantCategoriesThisMonth.reduce((sum, cat) => sum + cat.budget, 0);
 
@@ -163,7 +183,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (this.chart) { this.chart.update(); }
+    if (this.chart) {
+      this.chart.update();
+      console.log('Dashboard chart updated.');
+    } else {
+        console.log('Dashboard chart not ready for update yet.');
+    }
     this.cdr.detectChanges();
   }
 
