@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, HostListener, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
@@ -48,6 +48,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       datalabels: { display: false }
     }
   };
+
+  private readonly colorPalette: string[] = [
+    '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF',
+    '#FF9F40', '#C9CBCF', '#7CFFC4', '#FF7C7C', '#BDB2FF'
+  ];
 
   constructor(
     private router: Router,
@@ -112,10 +117,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const currentYear = now.getFullYear();
       const currentMonthIndex = now.getMonth();
       const lastDayOfMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
-
       const firstSuffix = this.getOrdinalSuffix(1);
       const lastSuffix = this.getOrdinalSuffix(lastDayOfMonth);
-
       this.chartDateRangeTitle = `${currentMonthName} 1<sup>${firstSuffix}</sup> - ${lastDayOfMonth}<sup>${lastSuffix}</sup>`;
   }
 
@@ -129,40 +132,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateDashboardChart(categories: ExpenseCategory[]): void {
-    console.log('Dashboard received category update:', categories);
-
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
     const relevantCategoriesThisMonth = categories.filter(cat => {
-        if (cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') {
-            return true;
-        }
+        if (cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') { return true; }
         if (cat.dueDate) {
             try {
                 const dueDate = new Date(cat.dueDate + 'T00:00:00');
                 const dueMonth = dueDate.getMonth();
                 const dueYear = dueDate.getFullYear();
-
                 if (cat.frequency === 'Monthly') {
                    if (cat.isDueEndOfMonth) {
                       return (dueYear < currentYear) || (dueYear === currentYear && dueMonth <= currentMonth);
-                   } else {
-                       return true;
-                   }
+                   } else { return true; }
                 } else if (cat.frequency === 'Quarterly' || cat.frequency === 'Annually' || cat.frequency === 'One-Time') {
                    return dueMonth === currentMonth && dueYear === currentYear;
                 }
-            } catch (e) {
-                console.error('Error parsing dueDate for dashboard filtering', cat.dueDate, e);
-                return false;
-            }
+            } catch (e) { return false; }
         }
         return false;
     });
-
-    console.log('Dashboard showing categories relevant this month:', relevantCategoriesThisMonth);
 
     this.totalBudget = relevantCategoriesThisMonth.reduce((sum, cat) => sum + cat.budget, 0);
 
@@ -177,18 +168,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.doughnutChartLabels = relevantCategoriesThisMonth.map(c => c.name);
       if (this.doughnutChartDatasets[0]) {
           this.doughnutChartDatasets[0].data = relevantCategoriesThisMonth.map(c => c.budget);
-          const colors = relevantCategoriesThisMonth.map(c => c.color || '#cccccc');
+          const colors = relevantCategoriesThisMonth.map((c, index) => c.color || this.colorPalette[index % this.colorPalette.length]);
           this.doughnutChartDatasets[0].backgroundColor = colors;
           this.doughnutChartDatasets[0].hoverBackgroundColor = colors;
       }
     }
 
-    if (this.chart) {
-      this.chart.update();
-      console.log('Dashboard chart updated.');
-    } else {
-        console.log('Dashboard chart not ready for update yet.');
-    }
+    if (this.chart) { this.chart.update(); }
     this.cdr.detectChanges();
   }
 

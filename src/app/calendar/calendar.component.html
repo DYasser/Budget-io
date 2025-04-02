@@ -1,5 +1,31 @@
-<div class="calendar-container">
-    <h1>Calendar</h1>
-    <p>View upcoming bills, paydays, and financial events.</p>
-    <p><em>(Calendar interface will go here later)</em></p>
-</div>
+<div class="calendar-page-container">
+    <div class="calendar-controls">
+      <div class="controls-left">
+        <button class="control-button" (click)="goToPreviousMonth()" title="Previous Month">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button class="control-button" (click)="goToNextMonth()" title="Next Month">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="control-button today-button" (click)="goToToday()">
+          Today
+        </button>
+      </div>
+  
+      <h3 class="calendar-title">
+        {{ viewDate | date:'LLLL y' }}
+      </h3>
+  
+      <div class="controls-right">
+        </div>
+    </div>
+  
+    <div class="calendar-view-section">
+      <mwl-calendar-month-view
+        *ngIf="view === CalendarView.Month"
+        [viewDate]="viewDate"
+        [events]="events">
+      </mwl-calendar-month-view>
+  
+      </div>
+  </div>

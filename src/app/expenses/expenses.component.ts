@@ -4,8 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { BudgetService, ExpenseCategory, BudgetFrequency } from '../budget.service';
 
-interface Transaction { id: number; date: string; categoryId: number; categoryName: string; amount: number; description: string; }
-interface CategoryPercentage extends ExpenseCategory { percentage: number; color: string; }
+interface Transaction {
+  id: number;
+  date: string;
+  categoryId: string;
+  categoryName: string;
+  amount: number;
+  description: string;
+}
+
+interface CategoryPercentage extends ExpenseCategory {
+  percentage: number;
+  color: string;
+}
 
 @Component({
   selector: 'app-expenses',
@@ -33,7 +44,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   transactions: Transaction[] = [];
   newTransactionAmount: number | null = null;
   newTransactionDate: string = '';
-  newTransactionCategory: number | null = null;
+  newTransactionCategory: string | null = null;
   newTransactionDescription: string = '';
   private nextTransactionId = 1;
 
@@ -128,7 +139,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
   }
 
-  saveCategory(): void {
+  async saveCategory(): Promise<void> {
     if (!this.newCategoryName.trim() || this.newCategoryBudget === null || this.newCategoryBudget <= 0 || !this.newCategoryDueDate) {
       alert('Please enter a valid category name, a positive budget amount, and select a date.');
       return;
@@ -137,26 +148,31 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     const dateToSend = this.newCategoryDueDate;
     const endOfMonthFlag = this.newCategoryFrequency === 'Monthly' ? this.newCategoryIsDueEndOfMonth : false;
 
-    if (this.editingCategory) {
-      const updatedData: ExpenseCategory = {
-        ...this.editingCategory,
-        name: this.newCategoryName.trim(),
-        budget: this.newCategoryBudget,
-        frequency: this.newCategoryFrequency,
-        dueDate: dateToSend,
-        isDueEndOfMonth: endOfMonthFlag
-      };
-      this.budgetService.updateCategory(updatedData);
-    } else {
-      this.budgetService.addCategory(
-          this.newCategoryName.trim(),
-          this.newCategoryBudget,
-          this.newCategoryFrequency,
-          dateToSend,
-          endOfMonthFlag
-        );
+    try {
+        if (this.editingCategory) {
+          const updatedData: ExpenseCategory = {
+            id: this.editingCategory.id,
+            name: this.newCategoryName.trim(),
+            budget: this.newCategoryBudget,
+            frequency: this.newCategoryFrequency,
+            dueDate: dateToSend,
+            isDueEndOfMonth: endOfMonthFlag
+          };
+          await this.budgetService.updateCategory(updatedData);
+        } else {
+          await this.budgetService.addCategory(
+              this.newCategoryName.trim(),
+              this.newCategoryBudget,
+              this.newCategoryFrequency,
+              dateToSend,
+              endOfMonthFlag
+            );
+        }
+        this.resetForm();
+    } catch (error) {
+        console.error("Error saving category:", error);
+        alert("Failed to save category. Please try again.");
     }
-    this.resetForm();
   }
 
   editCategory(category: ExpenseCategory): void {
@@ -188,13 +204,19 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.newCategoryIsDueEndOfMonth = false;
   }
 
-  deleteCategory(categoryId: number): void {
+  async deleteCategory(categoryId: string): Promise<void> {
     const categoryToDelete = this.expenseCategories.find(c => c.id === categoryId);
     if (categoryToDelete && confirm(`Are you sure you want to delete "${categoryToDelete.name}"?`)) {
-       this.budgetService.deleteCategory(categoryId);
-       if (this.editingCategory?.id === categoryId) {
-           this.resetForm();
-       }
+        try {
+            await this.budgetService.deleteCategory(categoryId);
+            console.log('Category deleted via service.');
+            if (this.editingCategory?.id === categoryId) {
+                this.resetForm();
+            }
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            alert("Failed to delete category. Please try again.");
+        }
     } else {
         console.log('Deletion cancelled or category not found.');
     }
@@ -220,7 +242,7 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       description: this.newTransactionDescription.trim()
     };
     this.transactions.push(newTransaction);
-    console.log('Added Transaction:', newTransaction);
+    console.log('Added Transaction (local):', newTransaction);
 
     this.newTransactionAmount = null;
     this.newTransactionCategory = null;
