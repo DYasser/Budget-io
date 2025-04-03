@@ -14,10 +14,11 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-import { CalendarA11y, CalendarDateFormatter, DateAdapter } from 'angular-calendar'; 
+import { CalendarA11y, CalendarDateFormatter, DateAdapter, CalendarEventTitleFormatter } from 'angular-calendar'; 
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns'; 
 import { CalendarUtils } from 'angular-calendar'; 
 import { CommonModule, I18nPluralPipe } from '@angular/common';
+import { environment } from '../environments/environment';
 
 
 Chart.register(
@@ -39,9 +40,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
 
-    provideFirebaseApp(() => initializeApp({
-      
-    })),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
 
     provideFirestore(() => getFirestore()),
 
@@ -49,6 +48,7 @@ export const appConfig: ApplicationConfig = {
     CalendarUtils,
     CalendarDateFormatter,
     CalendarA11y,
+    CalendarEventTitleFormatter,
     I18nPluralPipe 
 
   ]

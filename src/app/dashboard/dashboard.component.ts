@@ -6,6 +6,9 @@ import { trigger, state, style, transition, animate, AnimationEvent } from '@ang
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BudgetService, ExpenseCategory } from '../budget.service';
+import { addMonths, subMonths, lastDayOfMonth, parseISO, addWeeks, addYears, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isWithinInterval, addDays, getMonth, getYear, format, startOfDay, endOfDay } from 'date-fns'; // Ensure date-fns imports if needed directly
+
+interface EventColor { primary: string; secondary: string; }
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   showWelcome = true;
   showChart = false;
+  viewDate: Date = new Date();
   private timerHandle: any = null;
   private resizeTimeout: any;
   private categoriesSubscription!: Subscription;
@@ -44,7 +48,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     cutout: '85%',
     plugins: {
       legend: { display: false },
-      tooltip: { enabled: false },
+      tooltip: { enabled: true },
       datalabels: { display: false }
     }
   };
@@ -132,6 +136,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   updateDashboardChart(categories: ExpenseCategory[]): void {
+    console.log('Dashboard received category update:', categories);
+
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -155,7 +161,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return false;
     });
 
-    this.totalBudget = relevantCategoriesThisMonth.reduce((sum, cat) => sum + cat.budget, 0);
+    console.log('Dashboard showing categories relevant this month:', relevantCategoriesThisMonth);
+
+    this.totalBudget = this.budgetService.calculateTotalOccurrencesBudgetForMonth(categories, this.viewDate);
 
     if (!relevantCategoriesThisMonth || relevantCategoriesThisMonth.length === 0) {
       this.doughnutChartLabels = [];

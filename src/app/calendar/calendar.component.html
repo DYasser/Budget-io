@@ -27,5 +27,24 @@
         [events]="events">
       </mwl-calendar-month-view>
   
+    </div>
+
+</div>
+
+<div class="receipt-display-area" *ngIf="receiptEventsThisMonth.length > 0">
+  <div class="receipt">
+    <div class="receipt-header">ITEMS THIS MONTH</div>
+    <div class="receipt-date">{{ viewDate | date:'LLLL y' }}</div>
+    <hr class="receipt-separator">
+    <div *ngFor="let event of receiptEventsThisMonth" class="receipt-item">
+      <span class="receipt-item-date">{{ event.start | date:'MMM d' }}</span>
+      <span class="receipt-description">{{ event.meta?.category?.name }}</span>
+      <span class="receipt-amount">{{ event.meta?.category?.budget | currency:'CAD':'symbol':'1.2-2' }}</span>
+    </div>
+    <hr class="receipt-separator dashed">
+      <div class="receipt-total">
+        <span class="receipt-description">TOTAL THIS MONTH</span>
+        <span class="receipt-amount">{{ receiptTotalAmount | currency:'CAD':'symbol':'1.2-2' }}</span>
       </div>
   </div>
+</div>

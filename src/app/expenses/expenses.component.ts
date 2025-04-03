@@ -12,10 +12,10 @@ interface Transaction {
   amount: number;
   description: string;
 }
-
 interface CategoryPercentage extends ExpenseCategory {
   percentage: number;
   color: string;
+  monthlyEquivalent: number;
 }
 
 @Component({
@@ -50,8 +50,8 @@ export class ExpensesComponent implements OnInit, OnDestroy {
 
   categoryProportions: CategoryPercentage[] = [];
   budgetFrequencies: BudgetFrequency[] = ['Monthly', 'Weekly', 'Bi-Weekly', 'Quarterly', 'Annually', 'One-Time'];
-
   currentMonthName: string = '';
+  currentMonthTotalEquivalentBudget: number = 0;
 
   private readonly colorPalette: string[] = [
     '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF',
@@ -90,53 +90,30 @@ export class ExpensesComponent implements OnInit, OnDestroy {
   }
 
   calculateCurrentMonthProportions(): void {
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
+      const today = new Date();
+      const relevantCategories = this.expenseCategories;
 
-      const relevantCategoriesThisMonth = this.expenseCategories.filter(cat => {
-          if (cat.frequency === 'Weekly' || cat.frequency === 'Bi-Weekly') {
-              return true;
-          }
-          if (cat.dueDate) {
-              try {
-                  const dueDate = new Date(cat.dueDate + 'T00:00:00');
-                  const dueMonth = dueDate.getMonth();
-                  const dueYear = dueDate.getFullYear();
+      this.currentMonthTotalEquivalentBudget = this.budgetService.calculateTotalOccurrencesBudgetForMonth(relevantCategories, today);
 
-                  if (cat.frequency === 'Monthly') {
-                     if (cat.isDueEndOfMonth) {
-                        return (dueYear < currentYear) || (dueYear === currentYear && dueMonth <= currentMonth);
-                     } else {
-                         return true;
-                     }
-                  } else if (cat.frequency === 'Quarterly' || cat.frequency === 'Annually' || cat.frequency === 'One-Time') {
-                     return dueMonth === currentMonth && dueYear === currentYear;
-                  }
-              } catch (e) {
-                  console.error('Error parsing dueDate for filtering', cat.dueDate, e);
-                  return false;
-              }
-          }
-          return false;
-      });
+      const categoriesForProportionBars = relevantCategories.map((cat, index) => {
+          let monthlyEquivalent = 0;
+           switch (cat.frequency) {
+               case 'Monthly':   monthlyEquivalent = cat.budget; break;
+               case 'Weekly':    monthlyEquivalent = cat.budget * this.WEEKS_IN_MONTH; break;
+               case 'Bi-Weekly': monthlyEquivalent = cat.budget * this.BIWEEKS_IN_MONTH; break;
+               case 'Quarterly': monthlyEquivalent = cat.budget / 3; break;
+               case 'Annually':  monthlyEquivalent = cat.budget / 12; break;
+               case 'One-Time':  monthlyEquivalent = 0; break;
+           }
+          return {
+              ...cat,
+              monthlyEquivalent: monthlyEquivalent,
+              percentage: this.currentMonthTotalEquivalentBudget > 0 ? (monthlyEquivalent / this.currentMonthTotalEquivalentBudget) * 100 : 0,
+              color: cat.color || this.colorPalette[index % this.colorPalette.length]
+          };
+      }).filter(cat => cat.frequency !== 'One-Time');
 
-      if (relevantCategoriesThisMonth.length === 0) {
-          this.categoryProportions = [];
-          this.cdr.detectChanges();
-          return;
-      }
-
-      const totalBudgetThisMonth = relevantCategoriesThisMonth.reduce((sum, cat) => sum + cat.budget, 0);
-
-      this.categoryProportions = relevantCategoriesThisMonth.map((cat, index) => ({
-          ...cat,
-          percentage: totalBudgetThisMonth > 0 ? (cat.budget / totalBudgetThisMonth) * 100 : 0,
-          color: cat.color || this.colorPalette[index % this.colorPalette.length]
-      }));
-
-      console.log('Calculated This Month Proportions:', this.categoryProportions);
-      this.cdr.detectChanges();
+      this.categoryProportions = categoriesForProportionBars;
   }
 
   async saveCategory(): Promise<void> {
@@ -144,7 +121,6 @@ export class ExpensesComponent implements OnInit, OnDestroy {
       alert('Please enter a valid category name, a positive budget amount, and select a date.');
       return;
     }
-
     const dateToSend = this.newCategoryDueDate;
     const endOfMonthFlag = this.newCategoryFrequency === 'Monthly' ? this.newCategoryIsDueEndOfMonth : false;
 
@@ -182,7 +158,6 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     this.newCategoryFrequency = category.frequency;
     this.newCategoryDueDate = category.dueDate;
     this.newCategoryIsDueEndOfMonth = category.isDueEndOfMonth || false;
-
     setTimeout(() => {
       if (this.categoryNameInputRef) {
           this.categoryNameInputRef.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -209,7 +184,6 @@ export class ExpensesComponent implements OnInit, OnDestroy {
     if (categoryToDelete && confirm(`Are you sure you want to delete "${categoryToDelete.name}"?`)) {
         try {
             await this.budgetService.deleteCategory(categoryId);
-            console.log('Category deleted via service.');
             if (this.editingCategory?.id === categoryId) {
                 this.resetForm();
             }

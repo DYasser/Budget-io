@@ -406,6 +406,25 @@
   line-height: 1.3; /* Adjust line height if needed for wrapping */
 }
 
+.proportions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.percentage-title {
+  margin-bottom: 0; /* Reset margin as it's in flex now */
+  border-bottom: none; /* Remove border */
+  padding-bottom: 0;
+}
+.proportions-total {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+}
+
 @media (max-width: 900px) {
   :host {
       padding-top: 60px;

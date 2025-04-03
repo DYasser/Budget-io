@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Keep CommonModule for pipe/directives
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { CalendarModule, CalendarView, CalendarEvent, DateAdapter } from 'angular-calendar';
 import { Subscription } from 'rxjs';
 import {
@@ -14,7 +14,7 @@ interface EventColor { primary: string; secondary: string; }
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [ CommonModule, CalendarModule ],
+  imports: [ CommonModule, CalendarModule, CurrencyPipe ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -24,20 +24,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
   view: CalendarView = CalendarView.Month;
   CalendarView = CalendarView;
   viewDate: Date = new Date();
-  events: CalendarEvent[] = [];
+  events: CalendarEvent<{ category: ExpenseCategory }>[] = [];
+  receiptEventsThisMonth: CalendarEvent<{ category: ExpenseCategory }>[] = [];
   allCategories: ExpenseCategory[] = [];
   private categoriesSubscription!: Subscription;
+
+  receiptTotalAmount: number = 0; // Renamed from currentMonthTotalBudget
+
+  private readonly colorPalette: string[] = [
+    '#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF',
+    '#FF9F40', '#C9CBCF', '#7CFFC4', '#FF7C7C', '#BDB2FF'
+  ];
 
   constructor(
     private budgetService: BudgetService,
     private cdr: ChangeDetectorRef,
-    private dateAdapter: DateAdapter // Keep DateAdapter injected
+    private dateAdapter: DateAdapter
   ) {}
 
   ngOnInit(): void {
     this.categoriesSubscription = this.budgetService.categories$.subscribe(categories => {
       this.allCategories = categories;
-      this.refreshCalendarEvents();
+      this.refreshCalendarData();
     });
   }
 
@@ -49,58 +57,52 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   private getViewPeriod(): { viewStart: Date, viewEnd: Date } {
      if (this.view === CalendarView.Month) {
-        const view = getMonthView(this.dateAdapter, {
-           events: [],
-           viewDate: this.viewDate,
-           weekStartsOn: 0 // Explicitly set week start to Sunday (0)
-        });
+        const view = getMonthView(this.dateAdapter, { events: [], viewDate: this.viewDate, weekStartsOn: 0 });
         return { viewStart: view.period.start, viewEnd: view.period.end };
      } else if (this.view === CalendarView.Week) {
-        const viewStart = startOfWeek(this.viewDate); // Remove options object
-        const viewEnd = endOfWeek(this.viewDate); // Remove options object
+        const viewStart = startOfWeek(this.viewDate); const viewEnd = endOfWeek(this.viewDate);
         return { viewStart, viewEnd };
      } else {
         return { viewStart: startOfDay(this.viewDate), viewEnd: endOfDay(this.viewDate) };
      }
   }
 
-  private refreshCalendarEvents(): void {
-    if (!this.allCategories) return;
+  private refreshCalendarData(): void {
+    if (!this.allCategories) {
+        this.events = []; this.receiptEventsThisMonth = []; this.receiptTotalAmount = 0; this.cdr.markForCheck(); return;
+    };
 
     const viewPeriod = this.getViewPeriod();
     const periodInterval = { start: viewPeriod.viewStart, end: viewPeriod.viewEnd };
-    const generatedEvents: CalendarEvent[] = [];
-    const colorPalette = ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    const generatedEvents: CalendarEvent<{ category: ExpenseCategory }>[] = [];
+    const currentViewMonth = this.viewDate.getMonth();
+    const currentViewYear = this.viewDate.getFullYear();
 
     this.allCategories.forEach((category, catIndex) => {
-        if (!category.dueDate) return;
+       if (!category.dueDate) return;
         try {
             let startDate = parseISO(category.dueDate);
             if (isNaN(startDate.getTime())) { throw new Error('Invalid start date'); }
 
             const title = `${category.name}: $${category.budget.toFixed(0)}`;
-            const color = category.color || colorPalette[catIndex % colorPalette.length];
+            const color = category.color || this.colorPalette[catIndex % this.colorPalette.length];
             const eventColor = { primary: color, secondary: this.adjustColorOpacity(color, 0.6) };
-
             let baseOccurrence = startDate;
             if (category.frequency === 'Monthly' && category.isDueEndOfMonth) { baseOccurrence = lastDayOfMonth(startDate); }
-
             let iterations = 0; const maxIterations = 1000; let nextOccurrence = baseOccurrence;
 
             while (nextOccurrence <= periodInterval.end && iterations < maxIterations) {
                 iterations++;
-                let occurrenceDate = nextOccurrence;
-                if (category.frequency === 'Monthly' && category.isDueEndOfMonth) { occurrenceDate = lastDayOfMonth(nextOccurrence); }
+                let eventDateForCalendar = nextOccurrence;
+                if (category.frequency === 'Monthly' && category.isDueEndOfMonth) { eventDateForCalendar = lastDayOfMonth(nextOccurrence); }
 
-                if (occurrenceDate >= periodInterval.start && occurrenceDate >= startDate && occurrenceDate <= periodInterval.end) {
+                if (eventDateForCalendar >= periodInterval.start && eventDateForCalendar >= startDate && eventDateForCalendar <= periodInterval.end) {
                       generatedEvents.push({
-                        id: `${category.id}_${format(occurrenceDate, 'yyyyMMdd')}`, start: occurrenceDate, title: title,
+                        id: `${category.id}_${format(eventDateForCalendar, 'yyyyMMdd')}`, start: eventDateForCalendar, title: title,
                         color: eventColor, allDay: true, meta: { category }
                       });
                 }
-
-                if (occurrenceDate > periodInterval.end && !(category.frequency === 'Monthly' && category.isDueEndOfMonth)) { break; }
-
+                if (eventDateForCalendar > periodInterval.end && !(category.frequency === 'Monthly' && category.isDueEndOfMonth)) { break; }
                 switch (category.frequency) {
                     case 'One-Time': iterations = maxIterations; break;
                     case 'Weekly': nextOccurrence = addWeeks(baseOccurrence, iterations); break;
@@ -120,9 +122,20 @@ export class CalendarComponent implements OnInit, OnDestroy {
         } catch (e) { console.error(`Error processing category "${category.name}" with date "${category.dueDate}":`, e); }
     });
 
+    generatedEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
     this.events = generatedEvents;
+
+    this.receiptEventsThisMonth = this.events.filter(event => {
+        try {
+            return event.start.getMonth() === currentViewMonth && event.start.getFullYear() === currentViewYear;
+        } catch { return false; }
+    });
+
+    this.receiptTotalAmount = this.receiptEventsThisMonth.reduce((sum, event) => sum + (event.meta?.category?.budget || 0), 0);
+
     this.cdr.markForCheck();
   }
+
 
   private adjustColorOpacity(color: string, opacity: number): string {
       if (color.startsWith('#') && color.length === 7) {
@@ -131,11 +144,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
       } return 'rgba(100, 100, 100, 0.3)';
   }
 
-  setView(view: CalendarView): void { this.view = view; this.refreshCalendarEvents(); }
-  goToPreviousMonth(): void { this.viewDate = subMonths(this.viewDate, 1); this.refreshCalendarEvents(); }
-  goToNextMonth(): void { this.viewDate = addMonths(this.viewDate, 1); this.refreshCalendarEvents(); }
+  setView(view: CalendarView): void { this.view = view; this.refreshCalendarData(); }
+  goToPreviousMonth(): void { this.viewDate = subMonths(this.viewDate, 1); this.refreshCalendarData(); }
+  goToNextMonth(): void { this.viewDate = addMonths(this.viewDate, 1); this.refreshCalendarData(); }
   goToToday(): void {
-    if (this.viewDate.getMonth() === new Date().getMonth() && this.viewDate.getFullYear() === new Date().getFullYear()) return;
-    this.viewDate = new Date(); this.refreshCalendarEvents();
+    const today = new Date();
+    if (this.viewDate.getMonth() === today.getMonth() && this.viewDate.getFullYear() === today.getFullYear()) { this.refreshCalendarData(); return; };
+    this.viewDate = today; this.refreshCalendarData();
   }
 }
