@@ -1,0 +1,94 @@
+{
+  "configVersion": 1,
+  "timestamp": 1788783020283,
+  "index": "/Budget-io/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/Budget-io/favicon.ico",
+        "/Budget-io/index.html",
+        "/Budget-io/main-NWBJDK6W.js",
+        "/Budget-io/manifest.webmanifest",
+        "/Budget-io/polyfills-5CFQRCPP.js",
+        "/Budget-io/styles-5OLAHVUA.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/Budget-io/icons/icon-128x128.png",
+        "/Budget-io/icons/icon-144x144.png",
+        "/Budget-io/icons/icon-152x152.png",
+        "/Budget-io/icons/icon-192x192.png",
+        "/Budget-io/icons/icon-384x384.png",
+        "/Budget-io/icons/icon-512x512.png",
+        "/Budget-io/icons/icon-72x72.png",
+        "/Budget-io/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "google-fonts",
+      "patterns": [
+        "https:\\/\\/fonts\\.googleapis\\.com\\/.*",
+        "https:\\/\\/fonts\\.gstatic\\.com\\/.*"
+      ],
+      "strategy": "performance",
+      "maxSize": 40,
+      "maxAge": 31536000000,
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "version": 1
+    }
+  ],
+  "hashTable": {
+    "/Budget-io/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
+    "/Budget-io/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
+    "/Budget-io/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
+    "/Budget-io/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
+    "/Budget-io/icons/icon-192x192.png": "15c4180454633880d98674aa7394656196c91584",
+    "/Budget-io/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
+    "/Budget-io/icons/icon-512x512.png": "1de182f76f7329dfa8f9fcdd1fdcdd695bea6a99",
+    "/Budget-io/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
+    "/Budget-io/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
+    "/Budget-io/index.html": "d7aba4f7661dbf891b3018c1f3bda429d6df86ff",
+    "/Budget-io/main-NWBJDK6W.js": "308a3794774d53dfcf168eb7f4fe2f1c3808cbcf",
+    "/Budget-io/manifest.webmanifest": "76f312ccc22731d99c98f1a02f8ab804300a0433",
+    "/Budget-io/polyfills-5CFQRCPP.js": "f2241e9a25858f895ce299d15f6f22e849e2fd72",
+    "/Budget-io/styles-5OLAHVUA.css": "e20329c32e5236c1d5d95681a6d77293b7697691"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
